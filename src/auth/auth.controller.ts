@@ -7,12 +7,13 @@ import { createUserDto } from 'src/user/dto/user.dto';
 import { UserService } from 'src/user/user.service';
 import { Request } from 'express';
 import { AuthGuard } from '@nestjs/passport';
+import { Strategy } from 'passport-local';
 
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService ,private userService : UserService) {}
 
-  @UseGuards(AuthGuard('local'))
+  @UseGuards(localAuthGuard)
   @Post('/login')
   async login(@Req() req : Request) {
     const user = req.user as User

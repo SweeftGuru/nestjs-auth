@@ -7,18 +7,19 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { LocalStrategy } from './strategies/local-strategy';
 import { JwtStrategy } from './strategies/jwt-strategy';
 import { UserService } from 'src/user/user.service';
+import { PrismaService } from 'src/PrismaService';
 @Module({
   imports: [
     UserModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: (configService: ConfigService) => ({
+      useFactory: async (configService: ConfigService) => ({
         secret: configService.get<string>(process.env.JWT_SECRET),
       }),
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtService, LocalStrategy, JwtStrategy],
+  providers: [AuthService, UserService,PrismaService , JwtService, LocalStrategy, JwtStrategy],
 })
 export class AuthModule {}
