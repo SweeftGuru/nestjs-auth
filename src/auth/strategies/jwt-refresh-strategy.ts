@@ -1,9 +1,9 @@
 import { TokenService } from "@app/token";
-import { BadGatewayException, UnauthorizedException } from "@nestjs/common";
+import { BadGatewayException, Injectable, UnauthorizedException } from "@nestjs/common";
 import { PassportStrategy } from "@nestjs/passport";
 import { ExtractJwt, Strategy } from "passport-jwt";
 import { PrismaService } from "src/PrismaService";
-
+@Injectable()
 export class JwtRefreshStrategy extends PassportStrategy(Strategy, 'refresh') {
     constructor(private readonly tokenService : TokenService , private readonly prismaService : PrismaService) {
         super({
