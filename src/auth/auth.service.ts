@@ -1,43 +1,80 @@
-import { Injectable } from '@nestjs/common';
-import { loginDto, registerDto } from './dto/auth.dto';
+import { BadRequestException, HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { loginDto } from './dto/auth.dto';
 import { UserService } from 'src/user/user.service';
-import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { User } from '@prisma/client';
+import { createUserDto } from 'src/user/dto/user.dto';
+import { TokenService } from '@app/token';
+import { userWithAcceseToken, userWithTokens } from './interfaces/auth.interface';
+
 @Injectable()
 export class AuthService {
   constructor(
     private readonly userService: UserService,
-    private readonly jwtService: JwtService,
+    private readonly tokenService: TokenService,
   ) {}
 
-  
-  public async validateUser({
-    email,
-    password,
-  }:loginDto) {
+  async login(user: User): Promise<userWithTokens> {
     try {
-      const user = await this.userService.findOne(email);
-      if (user && bcrypt.compareSync(password, user.password)) {
-        const { password, ...data } = user;
-        return data;
-      }
-      return null;
+      return {
+        ...user,
+        tokens: {
+          accessToken: await this.tokenService.generateAccessToken(user),
+          refreshToken: await this.tokenService.generateRefreshToken(user),
+        },
+      };
+    } catch (error) {
+      throw new HttpException(error.meta, HttpStatus.CONFLICT)
+    }
+  }
+
+  public async register(createUserDto: createUserDto): Promise<userWithTokens> {
+    try {
+      const { password, ...user } = await this.userService.create({
+        ...createUserDto,
+        password: bcrypt.hashSync(createUserDto.password, 10),
+      });
+      return {
+        ...user,
+        tokens: {
+          accessToken: await this.tokenService.generateAccessToken(user),
+          refreshToken: await this.tokenService.generateRefreshToken(user),
+        },
+      };
+    } catch (error) {
+      throw new HttpException(error.response, HttpStatus.CONFLICT)
+
+    }
+  }
+
+  public async refresh(user: User) : Promise<userWithAcceseToken> {
+    try {
+      const { password, ...userInfo } = await this.userService.findOne(
+        user.email,
+      );
+      return {
+        ...userInfo,
+        accessToken: await this.tokenService.generateAccessToken(
+          userInfo,
+        ),
+      };
     } catch (error) {
       throw new Error(error.message);
     }
   }
 
-
-  async login(user: User): Promise<any> {
+  public async logOut(user : User) {
     try {
-      delete user.password;
+      const data  =  await this.tokenService.removeRefreshToken(user.id);
+      
       return {
-        ...user,
-        accessToken: this.jwtService.signAsync(user),
+        message: {
+          ...data,
+          message : 'user logged out'
+        },
       };
-    } catch (error) {}
+    } catch (error) {
+      throw new HttpException(error.meta, HttpStatus.CONFLICT)
+    }
   }
-
-
 }

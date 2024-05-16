@@ -35,6 +35,12 @@
       ],
       "@app/authlib/*": [
         "libs/authlib/src/*"
+      ],
+      "@app/token": [
+        "libs/token/src"
+      ],
+      "@app/token/*": [
+        "libs/token/src/*"
       ]
     }
   }

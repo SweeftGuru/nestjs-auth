@@ -16,6 +16,8 @@
     "@app/jwt/(.*)": "<rootDir>/../libs/jwt/src/$1",
     "@app/jwt": "<rootDir>/../libs/jwt/src",
     "@app/authlib/(.*)": "<rootDir>/../libs/authlib/src/$1",
-    "@app/authlib": "<rootDir>/../libs/authlib/src"
+    "@app/authlib": "<rootDir>/../libs/authlib/src",
+    "@app/token/(.*)": "<rootDir>/../libs/token/src/$1",
+    "@app/token": "<rootDir>/../libs/token/src"
   }
 }

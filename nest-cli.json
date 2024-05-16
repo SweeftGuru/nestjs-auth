@@ -5,5 +5,16 @@
   "compilerOptions": {
     "deleteOutDir": true,
     "webpack": true
+  },
+  "projects": {
+    "token": {
+      "type": "library",
+      "root": "libs/token",
+      "entryFile": "index",
+      "sourceRoot": "libs/token/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/token/tsconfig.lib.json"
+      }
+    }
   }
 }
