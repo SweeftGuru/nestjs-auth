@@ -6,6 +6,7 @@ import { createUserDto } from 'src/user/dto/user.dto';
 import { JwtGuard } from './guards/jwt-auth.guard';
 import { GetUser } from 'src/decorators/getUserFromJwt';
 import { JwtRefreshGuard } from './guards/jwt-refresh.guard';
+import { userWithRefreshToken } from './interfaces/auth.interface';
 
 @Controller('auth')
 export class AuthController {
@@ -27,16 +28,14 @@ export class AuthController {
 
   @UseGuards(JwtRefreshGuard)
   @Post('/refresh')
-  refresh(@GetUser() user : User) {
-    console.log(user)
-    // return this.authService.refresh(user);
+  refresh(@GetUser() user : userWithRefreshToken) {
+    return this.authService.refresh(user);
   }
 
 
   @UseGuards(JwtGuard)
   @Post('/logout')
   logOut(@GetUser() user : User){
-    console.log(user)
     return this.authService.logOut(user)
   }
 }

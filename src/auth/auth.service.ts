@@ -5,7 +5,7 @@ import * as bcrypt from 'bcrypt';
 import { User } from '@prisma/client';
 import { createUserDto } from 'src/user/dto/user.dto';
 import { TokenService } from '@app/token';
-import { userWithAcceseToken, userWithTokens } from './interfaces/auth.interface';
+import { userWithAcceseToken, userWithRefreshToken, userWithTokens } from './interfaces/auth.interface';
 
 @Injectable()
 export class AuthService {
@@ -47,34 +47,29 @@ export class AuthService {
     }
   }
 
-  public async refresh(user: User) : Promise<userWithAcceseToken> {
+  public async refresh(data : userWithRefreshToken ) : Promise<userWithAcceseToken>  {
     try {
-      const { password, ...userInfo } = await this.userService.findOne(
-        user.email,
-      );
+      const {refreshToken , ...user} = data
       return {
-        ...userInfo,
-        accessToken: await this.tokenService.generateAccessToken(
-          userInfo,
-        ),
+        ...data,
+        accessToken: await this.tokenService.generateAccessToken(user),
       };
     } catch (error) {
       throw new Error(error.message);
     }
   }
 
-  public async logOut(user : User) {
+  public async logOut(user : User) : Promise<{userId : string , message : string}> {
     try {
-      const data  =  await this.tokenService.removeRefreshToken(user.id);
-      
+      const {userId}  =  await this.tokenService.removeRefreshToken(user.id);
       return {
-        message: {
-          ...data,
+
+          userId : userId,
           message : 'user logged out'
-        },
+        
       };
     } catch (error) {
-      throw new HttpException(error.meta, HttpStatus.CONFLICT)
+      throw new HttpException(error.message.split('\n').reverse()[0], HttpStatus.CONFLICT)
     }
   }
 }

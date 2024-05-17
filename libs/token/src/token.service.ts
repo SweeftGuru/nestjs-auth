@@ -44,8 +44,7 @@ export class TokenService {
 
   public async removeRefreshToken(userId : string): Promise<any>{
       try {
-        console.log('starrrrttt==2311111111111 --------------------------------------------------------')
-        // return await this.prismaService.refreshToken.delete({where : {userId}})
+        return await this.prismaService.refreshToken.delete({where : {userId}})
       } catch (error) {
         throw new Error(error.message);
       }
